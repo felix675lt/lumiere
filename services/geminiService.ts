@@ -1,7 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 import { CarSize, CoverageType, FilmGrade } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = process.env.API_KEY;
+let ai: GoogleGenAI | null = null;
+if (apiKey) {
+  try {
+    ai = new GoogleGenAI({ apiKey });
+  } catch (e) {
+    console.warn("Gemini init error:", e);
+  }
+}
 
 export const getConciergeAdvice = async (
   carModel: string,
@@ -28,6 +36,10 @@ export const getConciergeAdvice = async (
       
       톤앤매너: "우아함", "신뢰감", "전문적임". 존댓말을 사용하세요.
     `;
+
+    if (!ai) {
+      return "AI 시스템 연결이 설정되지 않았습니다. 전문 상담원에게 직접 문의해 주시면 상세히 안내해 드리겠습니다.";
+    }
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',

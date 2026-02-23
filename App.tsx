@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import './src/i18n'; // Import i18n configuration
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { Hero } from './components/Hero';
 import { Estimator } from './components/Estimator';
 import { Atelier } from './components/Atelier';
 import { Process } from './components/Process';
 import { CarCare } from './components/CarCare';
+import { CustomParts3D } from './components/CustomParts3D';
 import { BookingModal } from './components/BookingModal'; // Import BookingModal to manage state here if needed, but it's used inside Estimator usually. Wait, Estimator has its own BookingModal. I should move BookingModal to App level to share it?
 // To avoid refactoring Estimator too much, I will add a separate BookingModal instance for App level (triggered by CarCare) or reuse logic.
 // Simpler approach: Add BookingModal to App.tsx and control it.
@@ -12,23 +16,25 @@ import { BookingModal } from './components/BookingModal'; // Import BookingModal
 // I will render BookingModal in App.tsx as well for CarCare usage.
 
 function App() {
+  const { t } = useTranslation();
   const [isEstimatorOpen, setIsEstimatorOpen] = useState(false);
   const [isAtelierOpen, setIsAtelierOpen] = useState(false);
   const [isProcessOpen, setIsProcessOpen] = useState(false);
   const [isCarCareOpen, setIsCarCareOpen] = useState(false);
+  const [isCustomPartsOpen, setIsCustomPartsOpen] = useState(false);
 
   // App-level Booking Modal State (for Car Care)
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [bookingData, setBookingData] = useState({
-      region: '',
-      carModel: '',
-      price: 0
+    region: '',
+    carModel: '',
+    price: 0
   });
 
   const handleCarCareBook = (carModel: string, price: number, region: string) => {
-      setBookingData({ carModel, price, region });
-      setIsBookingOpen(true);
-      // Optional: Close CarCare? CarCare closes itself in its handleBook
+    setBookingData({ carModel, price, region });
+    setIsBookingOpen(true);
+    // Optional: Close CarCare? CarCare closes itself in its handleBook
   };
 
   return (
@@ -38,34 +44,40 @@ function App() {
           LUMIÈRE
         </div>
         <div className="hidden md:flex gap-8 text-xs uppercase tracking-widest text-white/80">
-          <button onClick={() => setIsEstimatorOpen(true)} className="hover:text-white transition-colors uppercase">견적 산출</button>
-          <button onClick={() => setIsCarCareOpen(true)} className="hover:text-white transition-colors uppercase">카케어 솔루션</button>
-          <button onClick={() => setIsProcessOpen(true)} className="hover:text-white transition-colors uppercase">시공 프로세스</button>
-          <button onClick={() => setIsAtelierOpen(true)} className="hover:text-white transition-colors uppercase">아틀리에 소개</button>
+          <button onClick={() => setIsEstimatorOpen(true)} className="hover:text-white transition-colors uppercase">{t('nav.estimator')}</button>
+          <button onClick={() => setIsCarCareOpen(true)} className="hover:text-white transition-colors uppercase">{t('nav.carCare')}</button>
+          <button onClick={() => setIsCustomPartsOpen(true)} className="hover:text-white transition-colors uppercase">{t('nav.customParts')}</button>
+          <button onClick={() => setIsProcessOpen(true)} className="hover:text-white transition-colors uppercase">{t('nav.process')}</button>
+          <button onClick={() => setIsAtelierOpen(true)} className="hover:text-white transition-colors uppercase">{t('nav.atelier')}</button>
+          <div className="ml-4 border-l border-white/20 pl-4">
+            <LanguageSwitcher />
+          </div>
         </div>
       </nav>
 
       <main>
-        <Hero 
-          onOpenEstimator={() => setIsEstimatorOpen(true)} 
+        <Hero
+          onOpenEstimator={() => setIsEstimatorOpen(true)}
           onOpenCarCare={() => setIsCarCareOpen(true)}
+          onOpenCustomParts={() => setIsCustomPartsOpen(true)}
         />
         <Estimator isOpen={isEstimatorOpen} onClose={() => setIsEstimatorOpen(false)} />
         <Atelier isOpen={isAtelierOpen} onClose={() => setIsAtelierOpen(false)} />
         <Process isOpen={isProcessOpen} onClose={() => setIsProcessOpen(false)} />
-        <CarCare 
-            isOpen={isCarCareOpen} 
-            onClose={() => setIsCarCareOpen(false)} 
-            onBook={handleCarCareBook}
+        <CarCare
+          isOpen={isCarCareOpen}
+          onClose={() => setIsCarCareOpen(false)}
+          onBook={handleCarCareBook}
         />
-        
+        <CustomParts3D isOpen={isCustomPartsOpen} onClose={() => setIsCustomPartsOpen(false)} />
+
         {/* Booking Modal for Car Care */}
-        <BookingModal 
-            isOpen={isBookingOpen}
-            onClose={() => setIsBookingOpen(false)}
-            region={bookingData.region}
-            carModel={bookingData.carModel}
-            estimatedPrice={bookingData.price}
+        <BookingModal
+          isOpen={isBookingOpen}
+          onClose={() => setIsBookingOpen(false)}
+          region={bookingData.region}
+          carModel={bookingData.carModel}
+          estimatedPrice={bookingData.price}
         />
 
         {/* Simple Footer Section */}
@@ -73,21 +85,20 @@ function App() {
           <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
             <div className="col-span-1 md:col-span-2">
               <h2 className="text-3xl font-serif mb-6">LUMIÈRE</h2>
-              <p className="text-neutral-500 text-sm leading-relaxed max-w-sm word-keep-all">
-                진보된 소재와 장인정신을 통해 자동차 보존의 새로운 기준을 제시합니다. 
-                단순한 보호를 넘어, 귀하의 차량이 가진 유산을 큐레이팅합니다.
+              <p className="text-neutral-500 text-sm leading-relaxed max-w-sm word-keep-all whitespace-pre-line">
+                {t('hero.description')}
               </p>
             </div>
             <div>
-              <h4 className="text-white text-xs uppercase tracking-widest mb-6">Contact</h4>
+              <h4 className="text-white text-xs uppercase tracking-widest mb-6">{t('footer.contact')}</h4>
               <ul className="space-y-4 text-neutral-500 text-sm">
                 <li>concierge@lumiere-ppf.com</li>
                 <li>02-1234-5678</li>
-                <li>서울특별시 강남구 도산대로</li>
+                <li>{t('footer.address')}</li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white text-xs uppercase tracking-widest mb-6">Social</h4>
+              <h4 className="text-white text-xs uppercase tracking-widest mb-6">{t('footer.social')}</h4>
               <ul className="space-y-4 text-neutral-500 text-sm">
                 <li className="hover:text-white cursor-pointer transition-colors">Instagram</li>
                 <li className="hover:text-white cursor-pointer transition-colors">YouTube</li>
@@ -95,8 +106,8 @@ function App() {
             </div>
           </div>
           <div className="max-w-6xl mx-auto px-6 mt-20 text-neutral-800 text-xs flex justify-between">
-             <span>© 2024 Lumière PPF Studio. All rights reserved.</span>
-             <span>개인정보처리방침</span>
+            <span>{t('footer.rights', { year: new Date().getFullYear() })}</span>
+            <span>{t('footer.privacy')}</span>
           </div>
         </footer>
       </main>
